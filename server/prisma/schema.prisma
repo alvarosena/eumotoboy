@@ -6,3 +6,64 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Merchant {
+  id          String    @id @default(uuid())
+  pic         String?
+  name        String
+  email       String    @unique
+  cnpj        String    @unique
+  is_confimed Boolean?
+  token       String?
+  create_at   DateTime  @default(now())
+  address     Address[]
+
+  @@map("merchants")
+}
+
+model Address {
+  id              String       @id @default(uuid())
+  zipcode         String       @unique
+  street          String
+  number          String
+  district        String
+  city            String
+  state           String
+  complement      String?
+  merchant_id     String?
+  created_at      DateTime     @default(now())
+  Merchant        Merchant?    @relation(fields: [merchant_id], references: [id])
+  DeliveryMan     DeliveryMan? @relation(fields: [delivery_man_id], references: [id])
+  delivery_man_id String?
+
+  @@map("address")
+}
+
+model DeliveryMan {
+  id         String    @id @default(uuid())
+  pic        String?
+  name       String
+  email      String    @unique
+  cpf        String    @unique
+  cnpj       String?   @unique
+  qrcode     String?
+  created_at DateTime  @default(now())
+  vehicle    Vehicle?
+  vehicleId  String?
+  address    Address[]
+
+  @@map("deliverymen")
+}
+
+model Vehicle {
+  id              String      @id @default(uuid())
+  name            String
+  pic             String?
+  model           String
+  license_plate   String
+  created_at      DateTime    @default(now())
+  delivery_man_id String      @unique
+  DeliveryMan     DeliveryMan @relation(fields: [delivery_man_id], references: [id])
+
+  @@map("vehicles")
+}
